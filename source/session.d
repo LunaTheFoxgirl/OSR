@@ -16,7 +16,7 @@ Duration practicallyInfinite() {
     Gets the current DateTime
 +/
 DateTime now() {
-    return cast(DateTime)Clock.currTime()(new UTC());
+    return cast(DateTime)Clock.currTime(UTC());
 }
 
 /++
@@ -75,15 +75,20 @@ public:
     /++
         Creates a new session for use with opIndex
     +/
-    Session* createSession(string token, Duration lifetime) {
-        import std.base64 : Base64;
-
-        // If session is already in store we don't need to add it twice.
-        if (token in sessions) return null;
+    Session* createSession(Duration lifetime) {
+        import std.base64 : Base64URL;
+        import secured.random;
 
         // Create session and return it
         DateTime nowTime = now();
-        sessions[token] = Session(Base64.encode(token), lifetime, nowTime, nowTime, []);
+        string token = Base64URL.encode(random(256));
+        Session session;
+        session.token = token;
+        session.lifetime = lifetime;
+        session.createTime = nowTime;
+        session.keepAlive = nowTime;
+
+        sessions[token] = session;
         return &sessions[token];
     }
 
@@ -97,7 +102,11 @@ public:
 
             // Check if the current time is over the session keep alive time + the max lifetime of a session
             // The session keep alive time = the last time the user used the session
-            if (nowTime.total!"hours" > (session.keepAlive+session.lifetime).total!"hours") {
+
+            Duration now = (cast(Duration)nowTime);
+            Duration then = (cast(Duration)(session.keepAlive+session.lifetime));
+
+            if (now.total!"hours" > then.total!"hours") {
                 sessions.remove(token);
             }
         }
