@@ -18,6 +18,9 @@ import api.common;
 import mondo;
 import bsond;
 import crypt;
+import db;
+import std.range;
+import std.algorithm;
 
 /++
     A user
@@ -57,9 +60,14 @@ public:
     }
 }
 
+/++
+    Get user from database
++/
 User getUser(string username) {
-    
+    return DATABASE.speedrun.users.findOne!User(Query.init.filterByUsername(username));
 }
+
+auto filterByUsername(Query q, in string name) { q.conditions["username"] = name; return q; }
 
 /++
     User authentication info
@@ -143,6 +151,5 @@ interface IUserEndpoint {
 /++
     Implementation of user endpoint
 +/
-class UserEndpoint : IUserEndpoint {
-
-}
+// class UserEndpoint : IUserEndpoint {
+// }

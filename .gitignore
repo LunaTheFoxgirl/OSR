@@ -1,0 +1,15 @@
+.dub
+docs.json
+__dummy.html
+docs/
+/speedrunthing
+speedrunthing.so
+speedrunthing.dylib
+speedrunthing.dll
+speedrunthing.a
+speedrunthing.lib
+speedrunthing-test-*
+*.exe
+*.o
+*.obj
+*.lst
