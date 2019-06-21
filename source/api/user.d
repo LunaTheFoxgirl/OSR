@@ -151,5 +151,24 @@ interface IUserEndpoint {
 /++
     Implementation of user endpoint
 +/
-// class UserEndpoint : IUserEndpoint {
-// }
+class UserEndpoint : IUserEndpoint {
+    StatusT!Token login(string username, string password) {
+        return StatusT!Token(StatusCode.StatusOK, "ok");
+    }
+
+    Status logout(Token token) {
+        return Status(StatusCode.StatusOK);
+    }
+
+    StatusT!Token register(User userinfo, string password) {
+        return StatusT!Token(StatusCode.StatusOK, "ok");
+    }
+
+    Status update(string token, User data) {
+        return Status(StatusCode.StatusOK);
+    }
+
+    Status rmuser(string token, string password) {
+        return Status(StatusCode.StatusOK);
+    }
+}
