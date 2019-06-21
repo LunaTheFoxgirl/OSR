@@ -1,0 +1,8 @@
+name "openspeedrun"
+description "A free and open source speedrun leaderboard implementation"
+authors "clipsey"
+copyright "Copyright © 2019, clipsey"
+license "GPLv3"
+dependency "vibe-d" version="~>0.8.5"
+dependency "mondo" version="~>1.1.9"
+dependency "secured" version="~>2.0.1"
