@@ -250,6 +250,9 @@ class AuthenticationEndpoint : IAuthenticationEndpoint {
         User userPtr = getUser(username);
         if (userPtr is null) return StatusT!Token(StatusCode.StatusInvalid, null);
 
+        // Update and destroy old sessions
+        SESSIONS.update();
+
         // Verify password
         if (!userPtr.auth.verify(data.password)) return StatusT!Token(StatusCode.StatusDenied, null);
 
