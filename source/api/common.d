@@ -20,7 +20,8 @@ module api.common;
 +/
 enum StatusCode : string {
     StatusOK = "ok",
-    StatusInvalid = "invalid"
+    StatusInvalid = "invalid",
+    StatusDenied = "access_denied"
 }
 
 // A log in token is a string

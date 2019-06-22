@@ -14,8 +14,24 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 +/
 import std.stdio;
+import vibe.d;
+import api;
+import session;
 
 void main()
 {
-	writeln("Edit source/app.d to start your project.");
+    // Create a new session manager
+    SESSIONS = new SessionManagerImpl();
+
+    // Set up API routes
+    URLRouter router = new URLRouter;
+    router.registerRestInterface!IAuthenticationEndpoint(new AuthenticationEndpoint(), "/api/v1");
+    router.registerRestInterface!IUserEndpoint(new UserEndpoint(), "/api/v1");
+
+    // Set up frontend routes
+    // TODO: make frontend
+
+    // Launch server.
+    listenHTTP("127.0.0.1:8080", router);
+    runApplication();
 }

@@ -13,26 +13,10 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 +/
-module db;
-import vibe.db.mongo.client;
-import vibe.db.mongo.mongo;
+module api;
 
-__gshared Database DATABASE;
-
-class Database {
-private:
-    MongoClient client;
-
-public:
-    MongoCollection opIndex(string index) {
-        return client.getCollection(index);
-    }
-
-    this(string connString) {
-        this.client = connectMongoDB(connString);
-    }
-}
-
-shared static this() {
-    DATABASE = new Database("mongodb://127.0.0.1");
-}
+public import api.common;
+public import api.user;
+public import api.speedrun;
+public import api.game;
+public import api.runner;
