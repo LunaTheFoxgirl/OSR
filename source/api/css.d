@@ -97,6 +97,18 @@ interface ICSSEndpoint {
     @path("/deny/:gameId")
     @bodyParam("token")
     Status denyCSS(string _gameId, string token);
+
+    /++
+        === Moderator+ ===
+
+        Deletes ALL CSS from a game.
+
+        This is a moderation functionality for use if approved CSS has been compromised (XSS)
+    +/
+    @method(HTTPMethod.POST)
+    @path("/wipe/:gameId")
+    @bodyParam("token")
+    Status wipeCSS(string _gameId, string token);
 }
 
 /++
@@ -198,6 +210,33 @@ class CSSEndpoint {
             css.css = "";
 
             // TODO: notify admins that the CSS was denied, and why.
+
+            DATABASE["speedrun.css"].update(["id": _gameId], css);
+            return Status(StatusCode.StatusOK);
+        }
+
+        return Status(StatusCode.StatusInvalid);
+    }
+
+    Status wipeCSS(string _gameId, string token) {
+        // Make sure the token is valid
+        if (!SESSIONS.isValid(token)) 
+            return Status(StatusCode.StatusDenied);
+        
+        // Make sure the game exists
+        if (getGame(_gameId) is null) return Status(StatusCode.StatusInvalid);
+
+        // Make sure the user has the permissions to accept the CSS
+        User user = getUser(SESSIONS[token].user);
+        if (user.power < Powers.Mod) 
+            return Status(StatusCode.StatusDenied);
+
+        // Make sure the CSS exists
+        if (DATABASE["speedrun.css"].count(["_id": _gameId]) > 0) {
+            // Approve CSS
+            CSS css = getCSS(_gameId);
+            css.css = "";
+            css.approvedCSS = "";
 
             DATABASE["speedrun.css"].update(["id": _gameId], css);
             return Status(StatusCode.StatusOK);
