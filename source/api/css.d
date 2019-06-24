@@ -85,6 +85,18 @@ interface ICSSEndpoint {
     @path("/accept/:gameId")
     @bodyParam("token")
     Status acceptCSS(string _gameId, string token);
+
+    /++
+        === Moderator+ ===
+
+        Denies the pending CSS for the specified game; if any
+
+        This WILL delete the CSS off the server.
+    +/
+    @method(HTTPMethod.POST)
+    @path("/deny/:gameId")
+    @bodyParam("token")
+    Status denyCSS(string _gameId, string token);
 }
 
 /++
@@ -155,8 +167,37 @@ class CSSEndpoint {
 
         // Make sure the CSS exists
         if (DATABASE["speedrun.css"].count(["_id": _gameId]) > 0) {
+            // Approve CSS
             CSS css = getCSS(_gameId);
             css.approvedCSS = css.css;
+
+            DATABASE["speedrun.css"].update(["id": _gameId], css);
+            return Status(StatusCode.StatusOK);
+        }
+
+        return Status(StatusCode.StatusInvalid);
+    }
+
+    Status denyCSS(string _gameId, string token) {
+        // Make sure the token is valid
+        if (!SESSIONS.isValid(token)) 
+            return Status(StatusCode.StatusDenied);
+        
+        // Make sure the game exists
+        if (getGame(_gameId) is null) return Status(StatusCode.StatusInvalid);
+
+        // Make sure the user has the permissions to accept the CSS
+        User user = getUser(SESSIONS[token].user);
+        if (user.power < Powers.Mod) 
+            return Status(StatusCode.StatusDenied);
+
+        // Make sure the CSS exists
+        if (DATABASE["speedrun.css"].count(["_id": _gameId]) > 0) {
+            // Approve CSS
+            CSS css = getCSS(_gameId);
+            css.css = "";
+
+            // TODO: notify admins that the CSS was denied, and why.
 
             DATABASE["speedrun.css"].update(["id": _gameId], css);
             return Status(StatusCode.StatusOK);
