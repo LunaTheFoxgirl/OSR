@@ -15,6 +15,7 @@
 +/
 module db;
 import vibe.db.mongo.client;
+public import vibe.db.mongo.database;
 import vibe.db.mongo.mongo;
 
 __gshared Database DATABASE;

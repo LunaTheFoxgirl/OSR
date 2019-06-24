@@ -80,7 +80,7 @@ string formatId(string id) {
                 if (isAlphaNum(c)) {
                     outId ~= c;
                 }
-                return;
+                break;
         }
     }
     return outId;

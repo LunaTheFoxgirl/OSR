@@ -28,6 +28,7 @@ void main()
     router.registerRestInterface!IAuthenticationEndpoint(new AuthenticationEndpoint(), "/api/v1");
     router.registerRestInterface!IUserEndpoint(new UserEndpoint(), "/api/v1");
     router.registerRestInterface!ICSSEndpoint(new CSSEndpoint(), "/api/v1");
+    router.registerRestInterface!IGameEndpoint(new GameEndpoint(), "/api/v1");
 
     // Set up frontend routes
     // TODO: make frontend

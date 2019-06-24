@@ -73,7 +73,7 @@ interface ICSSEndpoint {
     @method(HTTPMethod.POST)
     @path("/:gameId")
     @bodyParam("data")
-    void setCSS(string _gameId, CSSData data);
+    Status setCSS(string _gameId, CSSData data);
 
     /++
         === Moderator+ ===
@@ -119,7 +119,7 @@ struct CSSData {
     string css;
 }
 
-class CSSEndpoint {
+class CSSEndpoint : ICSSEndpoint {
     string css(string _gameId, bool showPending = false) {
         // Make sure Game exists.
         if (getGame(_gameId) is null) return StatusCode.StatusInvalid;
@@ -129,7 +129,7 @@ class CSSEndpoint {
         return showPending ? css.css : css.approvedCSS;
     }
 
-    void setCSS(string _gameId, CSSData data) {
+    Status setCSS(string _gameId, CSSData data) {
         import std.algorithm.searching : canFind;
 
         // Make sure the token is valid

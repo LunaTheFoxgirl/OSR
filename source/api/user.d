@@ -313,6 +313,7 @@ class AuthenticationEndpoint : IAuthenticationEndpoint {
     }
 }
 
+@trusted
 class UserEndpoint : IUserEndpoint {
     Status update(string token, User data) {
         // Make sure the token is valid

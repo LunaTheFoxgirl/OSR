@@ -17,10 +17,9 @@ module api;
 
 public import api.common;
 public import api.user;
-public import api.speedrun;
+public import api.run;
 public import api.game;
 public import api.runner;
-public import api.run;
 public import api.admin;
 public import api.category;
 public import api.css;
