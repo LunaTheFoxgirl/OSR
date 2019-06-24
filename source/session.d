@@ -120,6 +120,10 @@ public:
         return (idex in sessions) !is null;
     }
 
+    bool isValid(string token) {
+        return token !is null && token != "" && SESSIONS[token] !is null;
+    }
+
     /++
         Creates a new session for use with opIndex
     +/

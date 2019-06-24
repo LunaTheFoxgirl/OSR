@@ -15,9 +15,14 @@
 +/
 module config;
 
-enum SCRYPT_N = 1_048_576;
+/++
+    CHANGE THESE TO CHANGE PASSWORD SECURITY
+
+    N set to double of 2017 recommended value
++/
+enum SCRYPT_N = 65_536;
 enum SCRYPT_R = 8;
 enum SCRYPT_P = 1;
 enum SCRYPT_MAX_MEM = 1_074_790_400;
-enum SCRYPT_LENGTH = 128;
-enum SCRYPT_SALT_LENGTH = 64;
+enum SCRYPT_LENGTH = 64;
+enum SCRYPT_SALT_LENGTH = 32;

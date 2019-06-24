@@ -13,26 +13,18 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 +/
-import std.stdio;
-import vibe.d;
-import api;
+module api.speedrun;
+import vibe.web.rest;
+import vibe.data.serialization;
+import db;
 import session;
+import api.common;
+import api.user;
 
-void main()
-{
-    // Create a new session manager
-    SESSIONS = new SessionManagerImpl();
+struct Speedrun {
 
-    // Set up API routes
-    URLRouter router = new URLRouter;
-    router.registerRestInterface!IAuthenticationEndpoint(new AuthenticationEndpoint(), "/api/v1");
-    router.registerRestInterface!IUserEndpoint(new UserEndpoint(), "/api/v1");
-    router.registerRestInterface!ICSSEndpoint(new CSSEndpoint(), "/api/v1");
+}
 
-    // Set up frontend routes
-    // TODO: make frontend
+interface SpeedrunEndpoint {
 
-    // Launch server.
-    listenHTTP("127.0.0.1:8080", router);
-    runApplication();
 }

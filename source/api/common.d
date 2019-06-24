@@ -51,3 +51,37 @@ struct StatusT(T) {
     +/
     T data;
 }
+
+/++
+    Formats ids
+    IDs can contain:
+     * Alpha Numeric Characters
+     * _
+     * -
+     * .
+
+    Spaces will automatically be converted to _
+    Other characters will be discarded
++/
+string formatId(string id) {
+    import std.uni : isAlphaNum;
+    string outId;
+    foreach(c; id) {
+        switch(c) {
+            case ' ':
+                outId ~= "_";
+                break;
+            case '_':
+            case '-':
+            case '.':
+                outId ~= c;
+                break;
+            default:
+                if (isAlphaNum(c)) {
+                    outId ~= c;
+                }
+                return;
+        }
+    }
+    return outId;
+}

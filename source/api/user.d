@@ -61,6 +61,16 @@ public:
 }
 
 /++
+    The power level of a user
++/
+enum Powers : ushort {
+    Admin =   9001u,
+    Mod =       42u,
+    User =       1u,
+    Guest =      0u
+}
+
+/++
     A user
 +/
 @trusted
@@ -91,6 +101,15 @@ public:
     bool verified;
 
     /++
+        The power level of a user
+
+        THIS SHOULD ONLY BE CHANGED BY SITE ADMINS
+    +/
+    @name("power")
+    @optional
+    Powers power = Powers.User;
+
+    /++
         User's authentication info
     +/
     @name("auth")
@@ -109,6 +128,7 @@ public:
         this.email = email;
         this.displayName = username;
         this.verified = false;
+        this.power = Powers.User;
         this.auth = auth;
     }
 }
@@ -139,8 +159,12 @@ public:
 +/
 @trusted User createUser(string username, RegData data) {
     if (username.nameTaken) return null;
+    if (data.email.emailTaken) return null;
 
-    DATABASE["speedrun.users"].insert(new User(username, data.email, UserAuth(data.password)));
+    string properUsername = formatId(username);
+    if (properUsername == "") return null;
+
+    DATABASE["speedrun.users"].insert(new User(properUsername, data.email, UserAuth(data.password)));
     return getUser(username);
 }
 
@@ -245,6 +269,7 @@ interface IUserEndpoint {
 @trusted
 class AuthenticationEndpoint : IAuthenticationEndpoint {
     StatusT!Token login(string username, AuthData data) {
+        import std.stdio : writeln;
 
         // Get user instance, if user doesn't exist return status invalid
         User userPtr = getUser(username);
@@ -265,6 +290,10 @@ class AuthenticationEndpoint : IAuthenticationEndpoint {
     }
 
     Status logout(Token token) {
+        // Make sure the token is valid
+        if (!SESSIONS.isValid(token)) 
+            return Status(StatusCode.StatusInvalid);
+
         if (token in SESSIONS) {
             SESSIONS.kill(token);
         }
@@ -286,10 +315,18 @@ class AuthenticationEndpoint : IAuthenticationEndpoint {
 
 class UserEndpoint : IUserEndpoint {
     Status update(string token, User data) {
+        // Make sure the token is valid
+        if (!SESSIONS.isValid(token)) 
+            return Status(StatusCode.StatusDenied);
+
         return Status(StatusCode.StatusOK);
     }
 
     Status rmuser(string token, string password) {
+        // Make sure the token is valid
+        if (!SESSIONS.isValid(token)) 
+            return Status(StatusCode.StatusDenied);
+
         return Status(StatusCode.StatusOK);
     }
 }

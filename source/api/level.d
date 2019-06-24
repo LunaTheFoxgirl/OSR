@@ -13,13 +13,11 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 +/
-module api.speedrun;
+module api.level;
 import vibe.web.rest;
+import vibe.data.serialization;
+import db;
+import session;
+import api.common;
+import api.user;
 
-struct Speedrun {
-
-}
-
-interface SpeedrunEndpoint {
-
-}
