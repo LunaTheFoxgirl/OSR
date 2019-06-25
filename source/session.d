@@ -127,7 +127,7 @@ public:
     /++
         Creates a new session for use with opIndex
     +/
-    Session* createSession(Duration lifetime) {
+    Session* createSession(Duration lifetime, string username) {
         import std.base64 : Base64URL;
         import secured.random;
 
@@ -139,6 +139,7 @@ public:
         session.lifetime = lifetime;
         session.createTime = nowTime;
         session.keepAlive = nowTime;
+        session.user = username;
 
         sessions[token] = session;
         return &sessions[token];

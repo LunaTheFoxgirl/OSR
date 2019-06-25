@@ -286,7 +286,7 @@ class AuthenticationEndpoint : IAuthenticationEndpoint {
         if (SESSIONS.findUser(username) !is null) {
             return StatusT!Token(StatusCode.StatusOK, SESSIONS.findUser(username).token);
         }
-        return StatusT!Token(StatusCode.StatusOK, SESSIONS.createSession(data.lifetime.lifetimeFromLong).token);
+        return StatusT!Token(StatusCode.StatusOK, SESSIONS.createSession(data.lifetime.lifetimeFromLong, username).token);
     }
 
     Status logout(Token token) {

@@ -90,24 +90,7 @@ Game getGame(string gameId) {
     return DATABASE["speedrun.games"].findOne!Game(["_id": gameId]);
 }
 
-MongoCursor!Game searchGames(string query, int page = 0, int countPerPage = 20, bool showPending = false) {
-
-    if (!showPending) {
-        return DATABASE["speedrun.games"].find!Game(
-            [
-                "$and": [
-                    "$or": [
-                        ["_id": [ "$regex": query ]],
-                        ["name": [ "$regex": query ]],
-                        ["description": [ "$regex": query ]]
-                    ]
-                ]
-            ],
-            null, 
-            QueryFlags.None, 
-            page*countPerPage, 
-            countPerPage);
-    }
+MongoCursor!Game searchGames(string query, int page = 0, int countPerPage = 20) {
     return DATABASE["speedrun.games"].find!Game(
         [
             "$or": [
@@ -151,7 +134,6 @@ void denyGameFromId(string id) {
 
 struct GameCreationData {
     string token;
-    string id;
     string name;
     string description;
 }
@@ -215,7 +197,8 @@ class GameEndpoint : IGameEndpoint {
 
     StatusT!(Game[]) search(string query, int _page = 0, int pgCount = 20, bool showPending = false) {
         Game[] games;
-        foreach(game; searchGames(query, _page, pgCount, showPending)) {
+        foreach(game; searchGames(query, _page, pgCount)) {
+            if (!showPending && !game.approved) continue;
             games ~= game;
         }
         return StatusT!(Game[])(StatusCode.StatusOK, games);
@@ -244,6 +227,7 @@ class GameEndpoint : IGameEndpoint {
 
         // Make sure the user has the permissions to accept the CSS
         User user = getUser(SESSIONS[token].user);
+        if (user is null) return Status(StatusCode.StatusInvalid);
         if (user.power < Powers.Mod) 
             return Status(StatusCode.StatusDenied);
 
