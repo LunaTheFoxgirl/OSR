@@ -67,7 +67,7 @@ enum Powers : ushort {
     Admin =   9001u,
     Mod =       42u,
     User =       1u,
-    Guest =      0u
+    Banned =      0u
 }
 
 /++
@@ -141,6 +141,19 @@ public:
 }
 
 /++
+    Gets wether the user is valid on the site
+
+    Validity:
+     * Is a user
+     * Has verified their email
++/
+@trusted bool getUserValid(string username) {
+    User user = getUser(username);
+    if (user is null) return false;
+    return user.verified;
+}
+
+/++
     Returns true if there's a user with specified username
 +/
 @trusted bool nameTaken(string username) {
@@ -166,6 +179,32 @@ public:
 
     DATABASE["speedrun.users"].insert(new User(properUsername, data.email, UserAuth(data.password)));
     return getUser(username);
+}
+
+@trusted void deleteUser(string username) {
+    DATABASE["speedrun.users"].remove(["_id": username]);
+}
+
+@trusted bool hasUser(string username) {
+    return DATABASE["speedrun.users"].count(["_id": username]) > 0;
+}
+
+@trusted bool setUserBanned(string username, bool ban, bool community) {
+    if (ban) {
+        if (community) {
+            User user = getUser(username);
+            user.power = Powers.Banned;
+            return true;
+        }
+        deleteUser(username);
+        return true;
+    }
+    if (hasUser(username)) {
+        User user = getUser(username);
+        user.power = Powers.User;
+        return true;
+    }
+    return false;
 }
 
 /++
@@ -253,6 +292,25 @@ interface IUserEndpoint {
     Status update(string token, User data);
 
     /++
+        === Moderator+ ===
+
+
+    +/
+    @path("/ban/:userId")
+    @method(HTTPMethod.POST)
+    @bodyParam("token")
+    @queryParam("community", "c")
+    Status ban(string _userId, string token, bool community = true);
+
+    /++
+        === Moderator+ ===
+    +/
+    @path("/pardon/:userId")
+    @method(HTTPMethod.POST)
+    @bodyParam("token")
+    Status pardon(string _userId, string token);
+
+    /++
         Removes user from database with token.
 
         DO NOTE:
@@ -322,6 +380,35 @@ class UserEndpoint : IUserEndpoint {
 
         return Status(StatusCode.StatusOK);
     }
+
+    Status ban(string _userId, string token, bool community = true) {
+        // Make sure the token is valid
+        if (!SESSIONS.isValid(token)) 
+            return Status(StatusCode.StatusDenied);
+
+        // Make sure the user has the permissions neccesary
+        if (!getUserValid(SESSIONS[token].user)) return Status(StatusCode.StatusInvalid);
+        User user = getUser(SESSIONS[token].user);
+        if (user.power < Powers.Mod) 
+            return Status(StatusCode.StatusDenied);
+
+        return Status(setUserBanned(_userId, true, community) ? StatusCode.StatusOK : StatusCode.StatusInvalid);
+    }
+
+    Status pardon(string _userId, string token) {
+        // Make sure the token is valid
+        if (!SESSIONS.isValid(token)) 
+            return Status(StatusCode.StatusDenied);
+
+        // Make sure the user has the permissions neccesary
+        if (!getUserValid(SESSIONS[token].user)) return Status(StatusCode.StatusInvalid);
+        User user = getUser(SESSIONS[token].user);
+        if (user.power < Powers.Mod) 
+            return Status(StatusCode.StatusDenied);
+
+        return Status(setUserBanned(_userId, false, true) ? StatusCode.StatusOK : StatusCode.StatusInvalid);
+    }
+
 
     Status rmuser(string token, string password) {
         // Make sure the token is valid

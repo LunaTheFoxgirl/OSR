@@ -136,6 +136,9 @@ class CSSEndpoint : ICSSEndpoint {
         if (!SESSIONS.isValid(data.token)) 
             return Status(StatusCode.StatusDenied);
 
+        // Make sue that the user is valid
+        if (!getUserValid(SESSIONS[data.token].user)) return Status(StatusCode.StatusInvalid);
+
         // Make sure the game exists
         Game game = getGame(_gameId);
         if (game is null) return Status(StatusCode.StatusInvalid);
@@ -173,6 +176,7 @@ class CSSEndpoint : ICSSEndpoint {
         if (getGame(_gameId) is null) return Status(StatusCode.StatusInvalid);
 
         // Make sure the user has the permissions to accept the CSS
+        if (!getUserValid(SESSIONS[token].user)) return Status(StatusCode.StatusInvalid);
         User user = getUser(SESSIONS[token].user);
         if (user.power < Powers.Mod) 
             return Status(StatusCode.StatusDenied);
@@ -199,6 +203,7 @@ class CSSEndpoint : ICSSEndpoint {
         if (getGame(_gameId) is null) return Status(StatusCode.StatusInvalid);
 
         // Make sure the user has the permissions to accept the CSS
+        if (!getUserValid(SESSIONS[token].user)) return Status(StatusCode.StatusInvalid);
         User user = getUser(SESSIONS[token].user);
         if (user.power < Powers.Mod) 
             return Status(StatusCode.StatusDenied);
